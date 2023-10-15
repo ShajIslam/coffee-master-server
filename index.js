@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require('cors');
 const app = express();
+const { MongoClient, ServerApiVersion } = require('mongodb');
 const port = process.env.PORT || 8001;
 
 // middleware
@@ -12,7 +13,7 @@ app.use(cors());
 //upcMULhDniIdphU6
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+
 const uri = "mongodb+srv://Coffee_Master:upcMULhDniIdphU6@cluster0.1vqmal2.mongodb.net/?retryWrites=true&w=majority";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -28,12 +29,25 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    //create collection
+    const coffeeCollection = client.db('newCoffeeDb').collection('coffee');
+
+
+    app.post('/coffee', async(req, res)=>{
+        const newCoffee = req.body;
+        const result = await coffeeCollection.insertOne(newCoffee);
+        res.send(result);
+    })
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
